@@ -921,6 +921,24 @@ function selects_update_all() {
 }; 
 // === // CONTACT ==================================================================
 
+
+
+// === text-content animation ==================================================================
+{
+let block = document.querySelectorAll('.text-content');
+if(block.length>0){
+	block.forEach(item => {
+		let children = item.querySelector('.container_small').children;
+		let delay = -0.5;
+		for(let el of children) {
+			el.style.transitionDelay = (delay += 0.5) + 's';
+		}
+	})
+	}
+}
+// === text-content animation ==================================================================
+
+
 });
 
 // === GOOGLE MAP ==================================================================
