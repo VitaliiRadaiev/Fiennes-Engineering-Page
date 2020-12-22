@@ -33,7 +33,93 @@ var isMobile = {
   any: function any() {
     return isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows();
   }
-}; //SlideToggle
+};
+
+if (window.NodeList && !NodeList.prototype.forEach) {
+  NodeList.prototype.forEach = function (callback, thisArg) {
+    thisArg = thisArg || window;
+
+    for (var i = 0; i < this.length; i++) {
+      callback.call(thisArg, this[i], i, this);
+    }
+  };
+}
+
+Number.isNaN = Number.isNaN || function (value) {
+  return typeof value === 'number' && isNaN(value);
+};
+
+if (!String.prototype.repeat) {
+  String.prototype.repeat = function (count) {
+    'use strict';
+
+    if (this == null) {
+      throw new TypeError('can\'t convert ' + this + ' to object');
+    }
+
+    var str = '' + this;
+    count = +count;
+
+    if (count != count) {
+      count = 0;
+    }
+
+    if (count < 0) {
+      throw new RangeError('repeat count must be non-negative');
+    }
+
+    if (count == Infinity) {
+      throw new RangeError('repeat count must be less than infinity');
+    }
+
+    count = Math.floor(count);
+
+    if (str.length == 0 || count == 0) {
+      return '';
+    } // Обеспечение того, что count является 31-битным целым числом, позволяет нам значительно
+    // соптимизировать главную часть функции. Впрочем, большинство современных (на август
+    // 2014 года) браузеров не обрабатывают строки, длиннее 1 << 28 символов, так что:
+
+
+    if (str.length * count >= 1 << 28) {
+      throw new RangeError('repeat count must not overflow maximum string size');
+    }
+
+    var rpt = '';
+
+    for (var i = 0; i < count; i++) {
+      rpt += str;
+    }
+
+    return rpt;
+  };
+}
+
+function get_name_browser() {
+  var ua = navigator.userAgent;
+  if (ua.search(/YaBrowser/) > 0) return 'Яндекс Браузер';
+  if (ua.search(/rv:11.0/) > 0) return 'Internet Explorer 11';
+  if (ua.search(/MSIE/) > 0) return 'Internet Explorer';
+  if (ua.search(/Edge/) > 0) return 'Edge';
+  if (ua.search(/Chrome/) > 0) return 'Google Chrome';
+  if (ua.search(/Firefox/) > 0) return 'Firefox';
+  if (ua.search(/Opera/) > 0) return 'Opera';
+  if (ua.search(/Safari/) > 0) return 'Safari';
+  return 'Не определен';
+}
+
+var browser = get_name_browser();
+
+if (browser == 'Edge' || 'Internet Explorer') {
+  var videos = document.querySelectorAll('.video-block');
+
+  if (videos.length > 0) {
+    videos.forEach(function (item) {
+      item.classList.add('objectFitVideoPoly');
+    });
+  }
+} //SlideToggle
+
 
 var _slideUp = function _slideUp(target) {
   var duration = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 500;
@@ -349,6 +435,99 @@ $(document).ready(function () {
     }, 300);
   }
 
+  ;
+
+  var objectFitVideos = function objectFitVideos(t) {
+    "use strict";
+
+    function e(t) {
+      for (var e = getComputedStyle(t).fontFamily, o = null, i = {}; null !== (o = l.exec(e));) {
+        i[o[1]] = o[2];
+      }
+
+      return i["object-position"] ? n(i) : i;
+    }
+
+    function o(t) {
+      var o = -1;
+      t ? "length" in t || (t = [t]) : t = document.querySelectorAll("video");
+
+      for (; t[++o];) {
+        var n = e(t[o]);
+        (n["object-fit"] || n["object-position"]) && (n["object-fit"] = n["object-fit"] || "fill", i(t[o], n));
+      }
+    }
+
+    function i(t, e) {
+      function o() {
+        var o = t.videoWidth,
+            n = t.videoHeight,
+            d = o / n,
+            a = r.clientWidth,
+            c = r.clientHeight,
+            p = a / c,
+            l = 0,
+            s = 0;
+        i.marginLeft = i.marginTop = 0, (d < p ? "contain" === e["object-fit"] : "cover" === e["object-fit"]) ? (l = c * d, s = a / d, i.width = Math.round(l) + "px", i.height = c + "px", "left" === e["object-position-x"] ? i.marginLeft = 0 : "right" === e["object-position-x"] ? i.marginLeft = Math.round(a - l) + "px" : i.marginLeft = Math.round((a - l) / 2) + "px") : (s = a / d, i.width = a + "px", i.height = Math.round(s) + "px", "top" === e["object-position-y"] ? i.marginTop = 0 : "bottom" === e["object-position-y"] ? i.marginTop = Math.round(c - s) + "px" : i.marginTop = Math.round((c - s) / 2) + "px"), t.autoplay && t.play();
+      }
+
+      if ("fill" !== e["object-fit"]) {
+        var i = t.style,
+            n = window.getComputedStyle(t),
+            r = document.createElement("object-fit");
+        r.appendChild(t.parentNode.replaceChild(r, t));
+        var d = {
+          height: "100%",
+          width: "100%",
+          boxSizing: "content-box",
+          display: "inline-block",
+          overflow: "hidden"
+        };
+        "backgroundColor backgroundImage borderColor borderStyle borderWidth bottom fontSize lineHeight left opacity margin position right top visibility".replace(/\w+/g, function (t) {
+          d[t] = n[t];
+        });
+
+        for (var a in d) {
+          r.style[a] = d[a];
+        }
+
+        i.border = i.margin = i.padding = 0, i.display = "block", i.opacity = 1, t.addEventListener("loadedmetadata", o), window.addEventListener("optimizedResize", o), t.readyState >= 1 && (t.removeEventListener("loadedmetadata", o), o());
+      }
+    }
+
+    function n(t) {
+      return ~t["object-position"].indexOf("left") ? t["object-position-x"] = "left" : ~t["object-position"].indexOf("right") ? t["object-position-x"] = "right" : t["object-position-x"] = "center", ~t["object-position"].indexOf("top") ? t["object-position-y"] = "top" : ~t["object-position"].indexOf("bottom") ? t["object-position-y"] = "bottom" : t["object-position-y"] = "center", t;
+    }
+
+    function r(t, e, o) {
+      o = o || window;
+      var i = !1,
+          n = null;
+
+      try {
+        n = new CustomEvent(e);
+      } catch (t) {
+        n = document.createEvent("Event"), n.initEvent(e, !0, !0);
+      }
+
+      var r = function r() {
+        i || (i = !0, requestAnimationFrame(function () {
+          o.dispatchEvent(n), i = !1;
+        }));
+      };
+
+      o.addEventListener(t, r);
+    }
+
+    var d = navigator.userAgent.indexOf("Edge/") >= 0,
+        a = new Image(),
+        c = "object-fit" in a.style && !d,
+        p = "object-position" in a.style && !d,
+        l = /(object-fit|object-position)\s*:\s*([-\w\s%]+)/g;
+    c && p || (o(t), r("resize", "optimizedResize"));
+  };
+
+  "undefined" != typeof module && "undefined" != typeof module.exports && (module.exports = objectFitVideos);
   ; // === Проверка, поддержка браузером формата webp ==================================================================
 
   function testWebP(callback) {
@@ -1101,6 +1280,8 @@ $(document).ready(function () {
       });
     }
   } // === text-content animation ==================================================================
+
+  objectFitVideos();
 }); // === GOOGLE MAP ==================================================================
 // ==== //  google map ===============
 
